@@ -1,5 +1,5 @@
 autoinstall:
-    version: 1
+  version: 1
   apt:
     disable_components: []
     fallback: offline-install
