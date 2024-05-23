@@ -65,79 +65,69 @@ autoinstall:
     install-server: false
   storage:
     config:
-      - id: disk-vda
+      - id: disk-sda
         type: disk
         ptable: gpt
-        path: /dev/vda
+        path: /dev/sda
         wipe: superblock-recursive
         preserve: false
-        name: ""
         grub_device: true
-      - id: partition-0
+      - id: partition-boot
         type: partition
-        device: disk-vda
+        device: disk-sda
         size: 1048576
         flag: bios_grub
         number: 1
         preserve: false
-        offset: 1048576
-        path: /dev/vda1
-      - id: partition-1
+      - id: partition-boot-efi
         type: partition
-        device: disk-vda
+        device: disk-sda
         size: 2147483648
         wipe: superblock
+        flag: boot
         number: 2
         preserve: false
-        offset: 2097152
-        path: /dev/vda2
-      - id: format-0
+      - id: format-boot-efi
         type: format
         fstype: ext4
-        volume: partition-1
+        volume: partition-boot-efi
         preserve: false
-      - id: partition-2
+      - id: partition-encrypt
         type: partition
-        device: disk-vda
-        size: 24692916224
+        device: disk-sda
+        size: -1
         wipe: superblock
         number: 3
         preserve: false
-        offset: 2149580800
-        path: /dev/vda3
-      - id: dm_crypt-0
+      - id: encrypt-partition
         type: dm_crypt
-        volume: partition-2
-        keyfile: /tmp/luks-key-pl8_z_k0
-        recovery_keyfile: null
+        volume: partition-encrypt
+        keyfile: /tmp/luks-key
         preserve: false
-        path: /dev/mapper/dm_crypt-0
-      - id: lvm_volgroup-0
+      - id: lvm-volgroup
         type: lvm_volgroup
         name: ubuntu-vg
         devices:
-          - dm_crypt-0
+          - encrypt-partition
         preserve: false
-      - id: lvm_partition-0
+      - id: lvm-root
         type: lvm_partition
         name: ubuntu-lv
-        volgroup: lvm_volgroup-0
-        size: 24675090432B
-        wipe: superblock
+        volgroup: lvm-volgroup
+        size: -1
         preserve: false
-        path: /dev/ubuntu-vg/ubuntu-lv
-      - id: format-1
+      - id: format-root
         type: format
         fstype: ext4
-        volume: lvm_partition-0
+        volume: lvm-root
         preserve: false
-      - id: mount-1
+      - id: mount-root
         type: mount
         path: /
-        device: format-1
-      - id: mount-0
+        device: format-root
+      - id: mount-boot-efi
         type: mount
         path: /boot
-        device: format-0
+        device: format-boot-efi
   timezone: Europe/Paris
   updates: security
