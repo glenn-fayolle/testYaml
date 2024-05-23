@@ -1,4 +1,5 @@
 autoinstall:
+    version: 1
   apt:
     disable_components: []
     fallback: offline-install
@@ -140,4 +141,3 @@ autoinstall:
         type: mount
   timezone: Europe/Paris
   updates: security
-  version: 1
