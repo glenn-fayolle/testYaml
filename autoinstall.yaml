@@ -4,130 +4,92 @@ autoinstall:
     disable_components: []
     fallback: offline-install
     geoip: true
-    mirror-selection:
-      primary:
-        - country-mirror
-        - arches:
-            - amd64
-            - i386
-          uri: http://archive.ubuntu.com/ubuntu/
-        - arches:
-            - s390x
-            - arm64
-            - armhf
-            - powerpc
-            - ppc64el
-            - riscv64
-          uri: http://ports.ubuntu.com/ubuntu-ports
     preserve_sources_list: false
-    security:
-      - arches:
-          - amd64
-          - i386
-        uri: http://security.ubuntu.com/ubuntu/
-      - arches:
-          - s390x
-          - arm64
-          - armhf
-          - powerpc
-          - ppc64el
-          - riscv64
-        uri: http://ports.ubuntu.com/ubuntu-ports
-  codecs:
-    install: false
-  drivers:
-    install: false
+    primary:
+      - arches: [amd64, i386]
+        uri: http://archive.ubuntu.com/ubuntu/
   identity:
     hostname: gf-Standard-PC-Q35-ICH9-2009
     password: $6$D2QXKdlwpULi16Vg$sMdG.j6b9r2UvZSoeCiO7R/Elv/3YNrGOkwkl7K3Z1F5w57lK9Vr749wyLo4fzhAfPB6BObrRRHXmLUdm5WSu.
     realname: gf
     username: gf
-  kernel:
-    package: linux-generic-hwe-24.04
+  locale: fr_FR.UTF-8
   keyboard:
     layout: fr
-    toggle: null
     variant: latin9
-  locale: fr_FR.UTF-8
   network:
+    version: 2
     ethernets:
       enp1s0:
         dhcp4: true
-    version: 2
-  oem:
-    install: auto
-  source:
-    id: ubuntu-desktop-minimal
-    search_drivers: false
-  ssh:
-    allow-pw: true
-    authorized-keys: []
-    install-server: false
   storage:
     config:
-      - id: disk-sda
-        type: disk
-        ptable: gpt
+      - ptable: gpt
         path: /dev/sda
         wipe: superblock-recursive
         preserve: false
+        name: ''
         grub_device: true
-      - id: partition-boot
-        type: partition
+        type: disk
+        id: disk-sda
+      - type: partition
         device: disk-sda
         size: 1048576
         flag: bios_grub
         number: 1
         preserve: false
-      - id: partition-boot-efi
-        type: partition
+        id: partition-bios-grub
+      - type: partition
         device: disk-sda
         size: 2147483648
-        wipe: superblock
         flag: boot
         number: 2
         preserve: false
-      - id: format-boot-efi
-        type: format
+        id: partition-boot
+      - type: format
         fstype: ext4
-        volume: partition-boot-efi
+        volume: partition-boot
         preserve: false
-      - id: partition-encrypt
-        type: partition
+        id: format-boot
+      - type: partition
         device: disk-sda
         size: -1
-        wipe: superblock
         number: 3
         preserve: false
-      - id: encrypt-partition
-        type: dm_crypt
-        volume: partition-encrypt
-        keyfile: /tmp/luks-key
+        id: partition-primary
+      - type: dm_crypt
+        volume: partition-primary
         preserve: false
-      - id: lvm-volgroup
-        type: lvm_volgroup
+        id: encrypted-primary
+      - type: lvm_volgroup
         name: ubuntu-vg
-        devices:
-          - encrypt-partition
-        preserve: false
-      - id: lvm-root
-        type: lvm_partition
+        devices: [encrypted-primary]
+        id: ubuntu-vg
+      - type: lvm_partition
         name: ubuntu-lv
-        volgroup: lvm-volgroup
+        volgroup: ubuntu-vg
         size: -1
-        preserve: false
-      - id: format-root
-        type: format
+        id: ubuntu-lv
+      - type: format
         fstype: ext4
-        volume: lvm-root
+        volume: ubuntu-lv
         preserve: false
-      - id: mount-root
-        type: mount
+        id: format-root
+      - type: mount
         path: /
         device: format-root
-      - id: mount-boot-efi
-        type: mount
+        id: mount-root
+      - type: mount
         path: /boot
-        device: format-boot-efi
+        device: format-boot
+        id: mount-boot
+  ssh:
+    allow-pw: true
+    authorized-keys: []
+    install-server: true
   timezone: Europe/Paris
+  user-data:
+    disable_root: false
   updates: security
+  kernel:
+    package: linux-generic-hwe-24.04
